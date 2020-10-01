@@ -1,0 +1,92 @@
+﻿@page
+@model TollCalculator.Pages.Pages.DemoModel
+@{
+    ViewData["Title"] = "Calculate";
+}
+
+
+
+<!DOCTYPE html>
+<!-- template from http://getbootstrap.com/getting-started -->
+
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap 101 Template</title>
+
+    <!-- CSS Includes -->
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+
+    <style type="text/css">
+
+        .field-validation-error {
+            color: #ff0000;
+        }
+    </style>
+</head>
+
+
+
+<body>
+
+
+    <form method="get">
+        <input type="text" asp-for="CurrentDate" placeholder="Date: YYYYMMDD" />
+        <input type="text" asp-for="CurrentTime" placeholder="Time: HH:MM" />
+
+    </form>
+
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+    <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+
+    <br />
+    <div>
+        <table width="100%">
+            <tr>
+                <td width="50%">
+                    <p><b>select vehicle to enter or leave the toll zone</b></p>
+                    <select asp-for="SelectedVehicleId" asp-items="Model.vhcl">
+                        <option value=""></option>
+                    </select>
+                </td>
+
+                <td>
+                    <p><b>Vehicles inside Toll Zone</b></p>
+
+                    @{
+                        List<string> izitems = ViewData["InsideZone"] as List<string>;
+
+
+                        if (izitems != null && izitems.Count > 0)
+                        {
+
+                        <div>
+                            <ul>
+                                @foreach (var izitem in izitems)
+                                    {
+                                <li>
+                                    @izitem
+                                </li>
+                                    }
+                            </ul>
+                        </div>
+                        }
+                    }
+
+                </td>
+            </tr>
+        </table>
+        <div>
+            <a asp-page="/Pages/Demo" asp-route-id="200">Calculate</a>
+        </div>
+    </div>
+
+
+
+
+
+</body>
+</html>
