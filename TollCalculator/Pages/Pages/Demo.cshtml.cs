@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using TollCalculator.Models;
 
 
@@ -23,23 +24,65 @@ namespace TollCalculator.Pages.Pages
         public int SelectedVehicleId { get; set; }
         public static List<int> VehiclesInsideZoneList = new List<int>();
         public static List<VehicleInfo> VehicleInfos = new List<VehicleInfo>();
+        // List containing all vehicles in and out, where and when
+        public static List<ZoneInfo> zoneInfos = new List<ZoneInfo>();
 
+        public static DateTime dateTime = new DateTime();
 
         
         List<string> vizList = new List<string>();
+        static List<string> zaList = new List<string>();
+
+        public const int minVehicles = 1;
+        public const int maxVehicles = 12;
 
         public void CalculateAll()
         {
-            // send every vehicle with all entry dates and time
-            //GetTollFee(Vehicle vehicle, DateTime[] dates);
-            TollCalc tollCalc = new TollCalc();
-            tollCalc.GetTollFee(null, null);
 
-            
+
+            for(int i = minVehicles; i<maxVehicles; i++)
+            {
+                DateTime[] dates = new DateTime[]
+                {
+
+                };
+
+                TollCalc tollCalc = new TollCalc();
+                int total = tollCalc.GetTollFee(dates);
+                // update page with fee info per vehicle
+            }
+
+
+
+            //TollCalc tollCalc = new TollCalc();
+            //int total = tollCalc.GetTollFee(dates);
+
+
+
         }
 
         public void OnGet(int VehicleId, string aDate, string aTime, string id)
         {
+            try
+            {
+
+
+                if (!string.IsNullOrEmpty(aDate) && !string.IsNullOrEmpty(aTime))
+                {
+                    var cultureInfo = new CultureInfo("se-SE");
+                    dateTime = DateTime.ParseExact(aDate, "yyyyMMdd", CultureInfo.InvariantCulture);
+                }
+                else
+                {
+                    dateTime = DateTime.Now;
+                }
+            }
+            catch (System.Exception e)
+            {
+                string link = "/Pages/Error";
+                Redirect(link);
+            }
+
             if (id != null)
             {
                 CalculateAll();
@@ -71,8 +114,18 @@ namespace TollCalculator.Pages.Pages
                 int viz = VehiclesInsideZoneList.Find(item => item == VehicleId);
                 if (viz > 0)
                 {
+                    
+
+                    ZoneInfo zInfo = new ZoneInfo();
+                    zInfo.id = VehicleId;
+                    zInfo.dateTime = dateTime;
+                    zInfo.ZoneAction = ZoneAction.Leave;
+                    zoneInfos.Add(zInfo);
+                    Vehicles item = vehicles.Find(item => item.Id == VehicleId);
+                    zaList.Add(item.Name + ", " + dateTime + " Leave");
                     //remove item
                     VehiclesInsideZoneList.Remove(VehicleId);
+
                 }
                 else
                 {
@@ -80,10 +133,20 @@ namespace TollCalculator.Pages.Pages
                     VehiclesInsideZoneList.Add(VehicleId);
                     VehicleInfo info = new VehicleInfo();
                     info.id = VehicleId;
-                    info.dateTime = DateTime.Now; // ToDo: Add correct date & time from page
+                    info.dateTime = dateTime;
                     Vehicles item = vehicles.Find(item => item.Id == VehicleId);
                     info.isFee = item.Fee;
                     VehicleInfos.Add(info);
+
+                    ZoneInfo zInfo = new ZoneInfo();
+                    zInfo.id = VehicleId;
+                    zInfo.dateTime = dateTime;
+                    zInfo.ZoneAction = ZoneAction.Enter;
+                    zoneInfos.Add(zInfo);
+                    Vehicles vItem = vehicles.Find(vitem => vitem.Id == VehicleId);
+                    zaList.Add(vItem.Name + ", " + dateTime + " Enter");
+
+
                 }
 
                 foreach (Vehicles el in vehicles)
@@ -91,17 +154,24 @@ namespace TollCalculator.Pages.Pages
                     int value = VehiclesInsideZoneList.Find(item => item == el.Id);
                     if (value > 0)
                     {
+                        VehicleInfo item = VehicleInfos.Find(item => item.id == el.Id);
+                        if (item != null)
+                        {
+                            aDate = item.dateTime.Date.ToString();
+                        }
                         vizList.Add(el.Name + ", " + el.Department + " [" + aDate + " " + aTime + "]");
                     }
                 }
+
                 ViewData["InsideZone"] = vizList;
+                //ViewData["date"] = aDate;
+                //ViewData["time"] = aTime;
+                ViewData["ZoneActions"] = zaList;
             }
             else
             {
                 string currDate = Request.Query["CurrentDate"];
                 string currTime = Request.Query["CurrentTime"];
-                
-
             }
         }
     }

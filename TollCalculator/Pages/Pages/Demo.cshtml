@@ -33,8 +33,9 @@
 
 
     <form method="get">
-        <input type="text" asp-for="CurrentDate" placeholder="Date: YYYYMMDD" />
-        <input type="text" asp-for="CurrentTime" placeholder="Time: HH:MM" />
+
+        <input type="text" asp-for="CurrentDate" placeholder="Date: YYYYMMDD" value="@ViewData["date"]" />
+        <input type="text" asp-for="CurrentTime" placeholder="Time: HH:MM" value="@ViewData["time"]" />
 
     </form>
 
@@ -44,16 +45,19 @@
 
     <br />
     <div>
-        <table width="100%">
+        <table width="100%" height="80%">
             <tr>
-                <td width="50%">
+                <td width="30%" valign="top">
                     <p><b>select vehicle to enter or leave the toll zone</b></p>
                     <select asp-for="SelectedVehicleId" asp-items="Model.vhcl">
                         <option value=""></option>
                     </select>
+                    <div>
+                        <a asp-page="/Pages/Demo" asp-route-id="200">Calculate</a>
+                    </div>
                 </td>
 
-                <td>
+                <td width="30%" valign="top">
                     <p><b>Vehicles inside Toll Zone</b></p>
 
                     @{
@@ -63,25 +67,49 @@
                         if (izitems != null && izitems.Count > 0)
                         {
 
-                        <div>
-                            <ul>
-                                @foreach (var izitem in izitems)
+                            <div>
+                                <ul>
+                                    @foreach (var izitem in izitems)
                                     {
-                                <li>
-                                    @izitem
-                                </li>
+                                        <li>
+                                            @izitem
+                                        </li>
                                     }
-                            </ul>
-                        </div>
+                                </ul>
+                            </div>
                         }
                     }
 
                 </td>
+
+                <td width="30%" valign="top">
+                    <p><b>Vehicles Actions</b></p>
+
+                    @{
+                        List<string> izactions = ViewData["ZoneActions"] as List<string>;
+
+
+                        if (izactions != null && izactions.Count > 0)
+                        {
+
+                            <div>
+                                <ul>
+                                    @foreach (var izaction in izactions)
+                                    {
+                                        <li>
+                                            @izaction
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        }
+                    }
+
+                </td>
+
             </tr>
         </table>
-        <div>
-            <a asp-page="/Pages/Demo" asp-route-id="200">Calculate</a>
-        </div>
+
     </div>
 
 
